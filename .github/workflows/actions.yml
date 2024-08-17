@@ -1,12 +1,14 @@
-name: remote ssh command
+name: Remote SSH Command with Docker
 on: [push]
 jobs:
-
   build:
-    name: Build
+    name: Build and Deploy Docker Container
     runs-on: ubuntu-latest
     steps:
-    - name: executing remote ssh commands using password
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Execute remote SSH commands using password
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.HOST }}
@@ -15,4 +17,6 @@ jobs:
         port: ${{ secrets.PORT }}
         script: |
           echo "${{ secrets.PASSWORD }}" | sudo -S su
-          whoami
+          cd /api-golang
+          sudo docker build -t api-golang:latest .
+          sudo docker run -d --name api-golang -p 7777:7777 api-golang:latest
