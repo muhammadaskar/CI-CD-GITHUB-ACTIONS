@@ -1,5 +1,9 @@
-name: Remote SSH Command with Docker
-on: [push]
+name: 🚀 Deploy to environment production
+on: 
+    push:
+        branches:
+            - main
+            
 jobs:
   build:
     name: Build and Deploy Docker Container
@@ -24,3 +28,4 @@ jobs:
           sudo -S docker rmi api-golang:latest
           sudo -S docker build -t api-golang:latest .
           sudo -S docker run -d --name api-golang -p 7777:7777 api-golang:latest
+          sudo -S docker ps

@@ -10,7 +10,7 @@ func main() {
 
 	api.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
-			"message": "Hello World, This CI CD Using Github Action",
+			"message": "Hello World, This CI CD",
 		})
 	})
 
