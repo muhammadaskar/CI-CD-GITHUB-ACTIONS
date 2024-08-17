@@ -16,7 +16,6 @@ jobs:
         password: ${{ secrets.PASSWORD }}
         port: ${{ secrets.PORT }}
         script: |
-          ls -la
-          # cd /api-golang
-          # sudo -S docker build -t api-golang:latest .
-          # sudo -S docker run -d --name api-golang -p 7777:7777 api-golang:latest
+          cd api-golang/
+          sudo -S docker build -t api-golang:latest .
+          sudo -S docker run -d --name api-golang -p 7777:7777 api-golang:latest
