@@ -3,7 +3,7 @@ on:
     push:
         branches:
             - main
-            
+
 jobs:
   build:
     name: Build and Deploy Docker Container
@@ -23,9 +23,9 @@ jobs:
           cd CI-CD-GITHUB-ACTIONS/
           eval "$(ssh-agent -s)" && ssh-add ~/.ssh/askar-github
           git pull origin main || exit 1
-          sudo -S docker stop api-golang
-          sudo -S docker rm api-golang
-          sudo -S docker rmi api-golang:latest
+          sudo -S docker stop api-golang || true
+          sudo -S docker rm api-golang || true
+          sudo -S docker rmi api-golang:latest || true
           sudo -S docker build -t api-golang:latest .
           sudo -S docker run -d --name api-golang -p 7777:7777 api-golang:latest
           sudo -S docker ps
