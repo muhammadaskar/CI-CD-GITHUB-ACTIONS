@@ -17,6 +17,7 @@ jobs:
         port: ${{ secrets.PORT }}
         script: |
           cd CI-CD-GITHUB-ACTIONS/
+          eval "$(ssh-agent -s)" && ssh-add ~/.ssh/askar-github
           git pull origin main || exit 1
           sudo -S docker stop api-golang
           sudo -S docker rm api-golang
