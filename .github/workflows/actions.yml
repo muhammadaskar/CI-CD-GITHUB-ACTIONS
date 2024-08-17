@@ -17,5 +17,9 @@ jobs:
         port: ${{ secrets.PORT }}
         script: |
           cd CI-CD-GITHUB-ACTIONS/
+          git pull origin main || exit 1
+          sudo -S docker stop api-golang
+          sudo -S docker rm api-golang
+          sudo -S docker rmi api-golang:latest
           sudo -S docker build -t api-golang:latest .
           sudo -S docker run -d --name api-golang -p 7777:7777 api-golang:latest
