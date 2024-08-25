@@ -16,8 +16,33 @@ jobs:
     - name: Copy .env.example to .env
       run: cp .env.example .env
 
-    - name: Build Docker image with secrets
+    - name: Build Docker image
       run: docker build --build-arg APP_PORT=${{ secrets.APP_PORT }} -t api-golang:latest .
+
+    - name: Save Docker image to tar.gz
+      run: |
+        docker save api-golang:latest | gzip > api-golang_latest.tar.gz
+
+    - name: Upload Docker image as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: docker-image
+        path: api-golang_latest.tar.gz
+
+    - name: Download Docker image artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: docker-image
+
+    - name: Transfer Docker image to remote server
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        port: ${{ secrets.PORT }}
+        source: api-golang_latest.tar.gz
+        target: /tmp/api-golang_latest.tar.gz
 
     - name: Execute remote SSH commands using password
       uses: appleboy/ssh-action@v1.0.3
@@ -27,11 +52,18 @@ jobs:
         password: ${{ secrets.PASSWORD }}
         port: ${{ secrets.PORT }}
         script: |
-          cd CI-CD-GITHUB-ACTIONS/
-          eval "$(ssh-agent -s)" && ssh-add ~/.ssh/askar-github
-          git pull origin main || exit 1
-          sudo -S docker stop api-golang || true
-          sudo -S docker rm api-golang || true
-          sudo -S docker rmi api-golang:latest || true
-          sudo -S docker run -d --name api-golang -p ${APP_PORT}:${APP_PORT} api-golang:latest
-          sudo -S docker ps
+          # Load Docker image
+          sudo docker load < /tmp/api-golang_latest.tar.gz
+
+          # Stop and remove existing Docker container
+          sudo docker stop api-golang || true
+          sudo docker rm api-golang || true
+
+          # Remove existing Docker image
+          sudo docker rmi api-golang:latest || true
+
+          # Run the new Docker container
+          sudo docker run -d --name api-golang -p ${APP_PORT}:${APP_PORT} api-golang:latest
+
+          # List running Docker containers
+          sudo docker ps
