@@ -33,12 +33,8 @@ jobs:
         password: ${{ secrets.PASSWORD }}
         port: ${{ secrets.PORT }}
         script: |
-          cd CI-CD-GITHUB-ACTIONS/
-          eval "$(ssh-agent -s)" && ssh-add ~/.ssh/askar-github
-          git pull origin main || exit 1
-          sudo -S docker stop api-golang || true
-          sudo -S docker rm api-golang || true
-          sudo -S docker rmi api-golang:latest || true
-          sudo -S docker pull ghcr.io/${{ github.repository_owner }}/api-golang:latest
-          sudo -S docker run -d --name api-golang -p 7777:7777 ghcr.io/${{ github.repository_owner }}/api-golang:latest
-          sudo -S docker ps
+          docker pull ghcr.io/muhammadaskar/api-golang:latest
+          docker stop api-golang || true
+          docker rm api-golang || true
+          docker run -d --name api-golang -p ${{ secrets.APP_PORT }}:${{ secrets.APP_PORT }} ghcr.io/muhammadaskar/api-golang:latest
+          docker ps
