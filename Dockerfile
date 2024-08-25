@@ -1,6 +1,10 @@
 # Use golang:latest as the base image
 FROM golang:latest
 
+# Build argument
+ARG APP_PORT
+ENV APP_PORT=${APP_PORT}
+
 # Set the working directory to /app-prod
 WORKDIR /app-prod
 

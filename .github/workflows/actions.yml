@@ -1,8 +1,9 @@
 name: 🚀 Deploy to environment production
+
 on: 
-    push:
-        branches:
-            - main
+  push:
+    branches:
+      - main
 
 jobs:
   build:
@@ -11,6 +12,12 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
+
+    - name: Copy .env.example to .env
+      run: cp .env.example .env
+
+    - name: Build Docker image with secrets
+      run: docker build --build-arg APP_PORT=${{ secrets.APP_PORT }} -t api-golang:latest .
 
     - name: Execute remote SSH commands using password
       uses: appleboy/ssh-action@v1.0.3
@@ -26,6 +33,5 @@ jobs:
           sudo -S docker stop api-golang || true
           sudo -S docker rm api-golang || true
           sudo -S docker rmi api-golang:latest || true
-          sudo -S docker build -t api-golang:latest .
-          sudo -S docker run -d --name api-golang -p 7777:7777 api-golang:latest
+          sudo -S docker run -d --name api-golang -p ${APP_PORT}:${APP_PORT} api-golang:latest
           sudo -S docker ps
