@@ -33,6 +33,7 @@ jobs:
         password: ${{ secrets.PASSWORD }}
         port: ${{ secrets.PORT }}
         script: |
+          eval "$(ssh-agent -s)" && ssh-add ~/.ssh/askar-github
           sudo docker pull ghcr.io/muhammadaskar/api-golang:latest
           sudo docker stop api-golang || true
           sudo docker rm api-golang || true
