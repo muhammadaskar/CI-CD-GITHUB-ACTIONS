@@ -33,8 +33,8 @@ jobs:
         password: ${{ secrets.PASSWORD }}
         port: ${{ secrets.PORT }}
         script: |
-          docker pull ghcr.io/muhammadaskar/api-golang:latest
-          docker stop api-golang || true
-          docker rm api-golang || true
-          docker run -d --name api-golang -p 7777:7777 ghcr.io/muhammadaskar/api-golang:latest
-          docker ps
+          sudo docker pull ghcr.io/muhammadaskar/api-golang:latest
+          sudo docker stop api-golang || true
+          sudo docker rm api-golang || true
+          sudo docker run -d --name api-golang -p 7777:7777 ghcr.io/muhammadaskar/api-golang:latest
+          sudo docker ps
