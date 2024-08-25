@@ -44,7 +44,7 @@ jobs:
           sudo docker rm api-golang || true
 
           # Run the new Docker container
-          sudo docker run -d --name api-golang -p ${APP_PORT}:${APP_PORT} ${{ secrets.DOCKER_USERNAME }}/api-golang:latest
+          sudo docker run -d --name api-golang -p 7777:7777 ${{ secrets.DOCKER_USERNAME }}/api-golang:latest
 
           # List running Docker containers
           sudo docker ps
