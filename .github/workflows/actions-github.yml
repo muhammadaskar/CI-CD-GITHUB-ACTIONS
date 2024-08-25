@@ -36,5 +36,5 @@ jobs:
           docker pull ghcr.io/muhammadaskar/api-golang:latest
           docker stop api-golang || true
           docker rm api-golang || true
-          docker run -d --name api-golang -p ${{ secrets.APP_PORT }}:${{ secrets.APP_PORT }} ghcr.io/muhammadaskar/api-golang:latest
+          docker run -d --name api-golang -p 7777:7777 ghcr.io/muhammadaskar/api-golang:latest
           docker ps
