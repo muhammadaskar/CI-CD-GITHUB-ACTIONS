@@ -1,0 +1,44 @@
+name: 🚀 Deploy to environment production
+
+on: 
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build and Deploy Docker Container
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Copy .env.example to .env
+      run: cp .env.example .env
+
+    - name: Log in to GitHub Container Registry
+      run: echo "${{ secrets.TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+    - name: Build Docker image
+      run: docker build --build-arg APP_PORT=${{ secrets.APP_PORT }} -t ghcr.io/${{ github.repository_owner }}/api-golang:latest .
+
+    - name: Push Docker image to GitHub Container Registry
+      run: docker push ghcr.io/${{ github.repository_owner }}/api-golang:latest
+
+    - name: Execute remote SSH commands using password
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        port: ${{ secrets.PORT }}
+        script: |
+          cd CI-CD-GITHUB-ACTIONS/
+          eval "$(ssh-agent -s)" && ssh-add ~/.ssh/askar-github
+          git pull origin main || exit 1
+          sudo -S docker stop api-golang || true
+          sudo -S docker rm api-golang || true
+          sudo -S docker rmi api-golang:latest || true
+          sudo -S docker pull ghcr.io/${{ github.repository_owner }}/api-golang:latest
+          sudo -S docker run -d --name api-golang -p 7777:7777 ghcr.io/${{ github.repository_owner }}/api-golang:latest
+          sudo -S docker ps

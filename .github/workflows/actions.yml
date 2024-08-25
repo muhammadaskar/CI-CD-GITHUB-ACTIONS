@@ -3,7 +3,7 @@ name: 🚀 Deploy to environment production
 on: 
   push:
     branches:
-      - main
+      - staging
 
 jobs:
   build:
