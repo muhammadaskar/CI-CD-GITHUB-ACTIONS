@@ -1,0 +1,9 @@
+linters:
+  enable:
+    - errcheck
+    - golint
+    - govet
+    - staticcheck
+  disable:
+    - gocyclo
+  # Configure other linter options as needed
