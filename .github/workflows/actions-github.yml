@@ -41,24 +41,8 @@ jobs:
             sudo docker run -d --name api-golang -p 7777:7777 ghcr.io/muhammadaskar/api-golang:latest
             sudo docker ps
 
-      - name: Trigger.dev Deployment via API
+      - name: 🚀 Deploy Trigger.dev
+        env:
+          TRIGGER_ACCESS_TOKEN: ${{ secrets.TRIGGER_ACCESS_TOKEN }}
         run: |
-          curl -X POST "https://api.trigger.dev/api/v1/tasks/ci-cd/trigger" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${{ secrets.TRIGGER_ACCESS_TOKEN }}" \
-            -d '{
-                  "payload": {
-                    "message": "Deploy request initiated"
-                  },
-                  "context": {
-                    "user": "github-actions"
-                  },
-                  "options": {
-                    "queue": {
-                      "name": "default",
-                      "concurrencyLimit": 5
-                    },
-                    "concurrencyKey": "github-actions-task",
-                    "idempotencyKey": "unique-key-123"
-                  }
-                }'
+          npx trigger.dev@beta deploy
