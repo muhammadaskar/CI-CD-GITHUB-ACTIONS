@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: Build and Deploy Docker Container
+    name: Build and Push Docker Image to Registry
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -25,27 +25,23 @@ jobs:
       - name: Push Docker image to GitHub Container Registry
         run: docker push ghcr.io/${{ github.repository_owner }}/api-golang:latest
 
-      - name: Execute remote SSH commands using password
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PASSWORD }}
-          port: ${{ secrets.PORT }}
-          script: |
-            source ~/.bashrc
-            echo ${GITHUB_PAT} | sudo docker login ghcr.io -u muhammadaskar --password-stdin
-            sudo docker pull ghcr.io/muhammadaskar/api-golang:latest
-            sudo docker tag ghcr.io/muhammadaskar/api-golang:latest myapi:latest
-            sudo docker stop api-golang || true
-            sudo docker rm api-golang || true
-            sudo docker run -d --name api-golang -p 7777:7777 myapi:latest
-            sudo docker image prune -a -f
-            sudo docker ps
-            exit
-
-      # - name: 🚀 Deploy Trigger.dev
-      #   env:
-      #     TRIGGER_ACCESS_TOKEN: ${{ secrets.TRIGGER_ACCESS_TOKEN }}
-      #   run: |
-      #     npx trigger.dev@beta deploy
+  deploy:
+      name: Pull Image and Run Container
+      needs: build
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        port: ${{ secrets.PORT }}
+        script: |
+          source ~/.bashrc
+          echo ${GITHUB_PAT} | sudo docker login ghcr.io -u muhammadaskar --password-stdin
+          sudo docker pull ghcr.io/muhammadaskar/api-golang:latest
+          sudo docker tag ghcr.io/muhammadaskar/api-golang:latest myapi:latest
+          sudo docker stop api-golang || true
+          sudo docker rm api-golang || true
+          sudo docker run -d --name api-golang -p 7777:7777 myapi:latest
+          sudo docker image prune -a -f
+          sudo docker ps
+          exit
