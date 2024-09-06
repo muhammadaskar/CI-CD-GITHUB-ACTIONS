@@ -1,6 +1,6 @@
 name: 🚀 Deploy to environment production
 
-on: 
+on:
   push:
     branches:
       - main
@@ -10,33 +10,47 @@ jobs:
     name: Build and Deploy Docker Container
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Copy .env.example to .env
-      run: cp .env.example .env
+      - name: Copy .env.example to .env
+        run: cp .env.example .env
 
-    - name: Log in to GitHub Container Registry
-      run: echo "${{ secrets.TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-    - name: Build Docker image
-      run: docker build --build-arg APP_PORT=${{ secrets.APP_PORT }} -t ghcr.io/${{ github.repository_owner }}/api-golang:latest .
+      - name: Build Docker image
+        run: docker build --build-arg APP_PORT=${{ secrets.APP_PORT }} -t ghcr.io/${{ github.repository_owner }}/api-golang:latest .
 
-    - name: Push Docker image to GitHub Container Registry
-      run: docker push ghcr.io/${{ github.repository_owner }}/api-golang:latest
+      - name: Push Docker image to GitHub Container Registry
+        run: docker push ghcr.io/${{ github.repository_owner }}/api-golang:latest
 
-    - name: Execute remote SSH commands using password
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        password: ${{ secrets.PASSWORD }}
-        port: ${{ secrets.PORT }}
-        script: |
-          source ~/.bashrc
-          echo ${GITHUB_PAT} | sudo docker login ghcr.io -u muhammadaskar --password-stdin
-          sudo docker pull ghcr.io/muhammadaskar/api-golang:latest
-          sudo docker stop api-golang || true
-          sudo docker rm api-golang || true
-          sudo docker run -d --name api-golang -p 7777:7777 ghcr.io/muhammadaskar/api-golang:latest
-          sudo docker ps
+      - name: Execute remote SSH commands using password
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            source ~/.bashrc
+            echo ${GITHUB_PAT} | sudo docker login ghcr.io -u muhammadaskar --password-stdin
+            sudo docker pull ghcr.io/muhammadaskar/api-golang:latest
+            sudo docker stop api-golang || true
+            sudo docker rm api-golang || true
+            sudo docker run -d --name api-golang -p 7777:7777 ghcr.io/muhammadaskar/api-golang:latest
+            sudo docker ps
+
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: 🚀 Deploy Trigger.dev
+        env:
+          TRIGGER_ACCESS_TOKEN: ${{ secrets.TRIGGER_ACCESS_TOKEN }}
+        run: |
+          npx trigger.dev@beta deploy
