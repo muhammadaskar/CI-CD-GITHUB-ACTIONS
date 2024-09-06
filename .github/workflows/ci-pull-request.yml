@@ -1,0 +1,45 @@
+name: CI Pull Request
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - staging
+      - main
+
+jobs:
+  lint:
+    name: Run GolangCI-Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 'latest'
+
+      - name: Run GolangCI-Lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.60.3
+          args: "--timeout 5m"
+          
+  test:
+    name: Run Go Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 'latest'
+
+      - name: Run Go Tests
+        run: |
+          go test ./... -v
