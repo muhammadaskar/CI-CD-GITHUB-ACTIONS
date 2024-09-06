@@ -25,7 +25,12 @@ jobs:
     - name: Push Docker image to Docker Hub
       run: docker push ${{ secrets.DOCKER_USERNAME }}/api-golang:latest
 
-    - name: Execute remote SSH commands using password
+  deploy:
+    name: Pull Image and Run Container
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Pull Image and Run Container
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.HOST }}
