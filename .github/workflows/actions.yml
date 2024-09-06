@@ -1,8 +1,9 @@
 name: 🚀 Deploy to environment production
+
 on: 
-    push:
-        branches:
-            - main
+  push:
+    branches:
+      - staging
 
 jobs:
   build:
@@ -12,6 +13,18 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
+    - name: Copy .env.example to .env
+      run: cp .env.example .env
+
+    - name: Log in to Docker Hub
+      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+    - name: Build Docker image
+      run: docker build --build-arg APP_PORT=${{ secrets.APP_PORT }} -t ${{ secrets.DOCKER_USERNAME }}/api-golang:latest .
+
+    - name: Push Docker image to Docker Hub
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/api-golang:latest
+
     - name: Execute remote SSH commands using password
       uses: appleboy/ssh-action@v1.0.3
       with:
@@ -20,12 +33,22 @@ jobs:
         password: ${{ secrets.PASSWORD }}
         port: ${{ secrets.PORT }}
         script: |
-          cd CI-CD-GITHUB-ACTIONS/
-          eval "$(ssh-agent -s)" && ssh-add ~/.ssh/askar-github
-          git pull origin main || exit 1
-          sudo -S docker stop api-golang || true
-          sudo -S docker rm api-golang || true
-          sudo -S docker rmi api-golang:latest || true
-          sudo -S docker build -t api-golang:latest .
-          sudo -S docker run -d --name api-golang -p 7777:7777 api-golang:latest
-          sudo -S docker ps
+          # Log in to Docker Hub
+          echo "${{ secrets.DOCKER_PASSWORD }}" | sudo docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          
+          # Pull the latest Docker image from Docker Hub
+          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/api-golang:latest
+          
+          # Stop and remove existing Docker container
+          sudo docker stop api-golang || true
+          sudo docker rm api-golang || true
+
+          # Run the new Docker container
+          sudo docker run -d --name api-golang -p 7777:7777 ${{ secrets.DOCKER_USERNAME }}/api-golang:latest
+
+          # Remove image unused
+          sudo docker image prune -a -f
+
+          # List running Docker containers
+          sudo docker ps
+          exit

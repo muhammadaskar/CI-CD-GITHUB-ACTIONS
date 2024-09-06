@@ -1,8 +1,19 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"fmt"
+	"log"
+	"os"
+
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+)
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
 	router := gin.Default()
 
@@ -10,10 +21,17 @@ func main() {
 
 	api.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
-			"message": "Hello World, This CI CD Using Github Action",
+			"message": "Hello World!!!",
 		})
 	})
 
-	router.Run(":7777")
+	port := os.Getenv("APP_PORT")
+	if port == "" {
+		port = "7777"
+	}
+	fmt.Println("Starting server on port:", port)
 
+	if err := router.Run(":" + port); err != nil {
+		log.Fatalf("Error starting server: %v", err)
+	}
 }
