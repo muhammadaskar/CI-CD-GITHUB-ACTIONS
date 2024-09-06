@@ -6,4 +6,9 @@ linters:
     - staticcheck
   disable:
     - gocyclo
-  # Configure other linter options as needed
+
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+  golint:
+    min-confidence: 0.8
