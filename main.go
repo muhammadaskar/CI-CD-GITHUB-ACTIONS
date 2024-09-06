@@ -26,7 +26,14 @@ func main() {
 	})
 
 	port := os.Getenv("APP_PORT")
-	fmt.Println(port)
+	if port == "" {
+		port = "7777"
+	}
+	fmt.Println("Starting server on port:", port)
+
+	if err := router.Run(":" + port); err != nil {
+		log.Fatalf("Error starting server: %v", err)
+	}
 
 	router.Run(":" + port)
 }
