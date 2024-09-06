@@ -40,7 +40,7 @@ jobs:
             sudo docker stop api-golang || true
             sudo docker rm api-golang || true
             sudo docker run -d --name api-golang -p 7777:7777 myapi:latest
-            sudo docker image prune -a
+            sudo docker image prune -a -f
             sudo docker ps
             exit
 
