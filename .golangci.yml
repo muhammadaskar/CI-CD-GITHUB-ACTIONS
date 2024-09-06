@@ -1,11 +1,11 @@
 linters:
   enable:
     - errcheck
-    - golint
     - govet
     - staticcheck
   disable:
     - gocyclo
+    - golint
 
 linters-settings:
   errcheck:
