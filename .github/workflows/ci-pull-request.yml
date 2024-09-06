@@ -4,8 +4,9 @@ on:
   pull_request:
     types: [opened, synchronize]
     branches:
-      - staging
       - main
+      - staging
+      - feature/**
 
 jobs:
   lint:

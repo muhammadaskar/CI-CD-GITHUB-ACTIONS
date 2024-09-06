@@ -46,5 +46,9 @@ jobs:
           # Run the new Docker container
           sudo docker run -d --name api-golang -p 7777:7777 ${{ secrets.DOCKER_USERNAME }}/api-golang:latest
 
+          # Remove image unused
+          sudo docker image prune -a -f
+
           # List running Docker containers
           sudo docker ps
+          exit
