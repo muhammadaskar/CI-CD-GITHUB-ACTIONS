@@ -34,6 +34,4 @@ func main() {
 	if err := router.Run(":" + port); err != nil {
 		log.Fatalf("Error starting server: %v", err)
 	}
-
-	router.Run(":" + port)
 }
