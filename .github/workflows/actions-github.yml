@@ -38,11 +38,5 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
           script: |
-            echo ${GITHUB_PAT} | sudo docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
-            sudo docker pull ghcr.io/${{ github.repository_owner }}/api-golang:latest
-            sudo docker tag ghcr.io/${{ github.repository_owner }}/api-golang:latest myapi:latest
-            sudo docker stop api-golang || true
-            sudo docker rm api-golang || true
-            sudo docker run -d --name api-golang -p 7777:7777 myapi:latest
-            sudo docker image prune -a -f
-            sudo docker ps
+            cd franco/
+            ./deploy-prod.sh
